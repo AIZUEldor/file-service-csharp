@@ -4,6 +4,7 @@ Oddiy C# console dastur. Dastur `.txt` fayllar bilan ishlaydi:
 - yangi fayl yaratib matn yozadi
 - mavjud fayllar ro‘yxatini ko‘rsatadi
 - tanlangan fayl ichidagi matnni o‘qib beradi
+  [Demo].(!demo4.gif)
 
 ## Funksiyalar
 - **1-menyu:** Fayl nomini so‘raydi va matn yozib saqlaydi  
