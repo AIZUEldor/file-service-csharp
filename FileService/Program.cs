@@ -128,7 +128,7 @@
             {
 
                 Console.WriteLine("❗ File topilmadi (mavjud emas).");
-                Console.WriteLine("Davom etish uchun tugma bosing...");
+                Console.WriteLine("Davom etish uchun entrni bosing...");
                 Console.ReadKey();
                 return;
             }
