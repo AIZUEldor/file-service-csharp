@@ -18,7 +18,6 @@ namespace FileService
             _url = url;
         }
 
-        // Har 5 sekundda ishlaydi, to‘xtatish uchun token
         public async Task RunAsync(CancellationToken token)
         {
             while (!token.IsCancellationRequested)
@@ -34,17 +33,15 @@ namespace FileService
                         $"[{DateTime.Now:HH:mm:ss}] Status={(int)resp.StatusCode} {resp.StatusCode} | {body}";
 
                     await _files.AppendLineAsync(dailyFile, logLine);
-                    Console.WriteLine($"[{DateTime.Now:HH:mm:ss}] Yozildi -> {dailyFile}");
                 }
                 catch (OperationCanceledException)
                 {
-                    // to‘xtatildi
+                    // to‘xtatildi — hech narsa yozmaymiz
                 }
                 catch (Exception ex)
                 {
                     string logLine = $"[{DateTime.Now:HH:mm:ss}] ERROR | {ex.Message}";
                     await _files.AppendLineAsync(dailyFile, logLine);
-                    Console.WriteLine(logLine);
                 }
 
                 await Task.Delay(5000, token);

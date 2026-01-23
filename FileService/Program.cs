@@ -1,148 +1,114 @@
-﻿namespace FileService
+﻿using System;
+using System.Threading;
+using System.Threading.Tasks;
+using FileService;
+
+namespace FileService
 {
     internal class Program
     {
         static async Task Main(string[] args)
         {
-            IFileService service = new FileService();
+            string url = "https://tarteeb-api-prod.azurewebsites.net/api/home/no-auth";
 
+            IFileService fileService = new FileService();
+            var cts = new CancellationTokenSource();
+
+            // Thread #1: background heartbeat start
+            var heartbeat = new ApiHeartbeat(fileService, url);
+            _ = Task.Run(() => heartbeat.RunAsync(cts.Token));
+
+            // Thread #2: menu (main)
             while (true)
             {
                 Console.Clear();
-
                 Console.WriteLine("=== MENU ===");
-                Console.WriteLine("1) Yangi file yaratish va text yozish");
-                Console.WriteLine("2) Filelar ro'yxati va ichini ko'rish");
+                Console.WriteLine("1) Filelar ro'yxati");
+                Console.WriteLine("2) File o‘qish (tanlab)");
                 Console.WriteLine("0) Chiqish");
                 Console.Write("Tanlang: ");
-
                 string choice = Console.ReadLine();
 
                 if (choice == "0")
+                {
+                    cts.Cancel(); // heartbeat to‘xtaydi
                     break;
+                }
 
                 switch (choice)
                 {
                     case "1":
-                        await CreateNewFile(service);
+                        await ShowFiles(fileService);
                         break;
 
                     case "2":
-                        await ShowFilesAndRead(service);
+                        await ReadSelectedFile(fileService);
                         break;
 
                     default:
                         Console.WriteLine("Noto'g'ri tanlov!");
-                        Console.WriteLine("Davom etish uchun birorta tugma bosing...");
+                        Console.WriteLine("Davom etish uchun tugma bosing...");
                         Console.ReadKey();
                         break;
                 }
             }
         }
 
-        private static async Task CreateNewFile(IFileService service)
+        private static async Task ShowFiles(IFileService service)
         {
             Console.Clear();
-
-            Console.Write("File nomini kiriting (masalan: note1): ");
-            string fileName = Console.ReadLine()?.Trim();
-
-            if (string.IsNullOrWhiteSpace(fileName))
-            {
-                Console.WriteLine("File nomi bo'sh bo'lmasin!");
-                Console.WriteLine("Davom etish uchun tugma bosing...");
-                Console.ReadKey();
-                return;
-            }
-
-            if (!fileName.EndsWith(".txt", StringComparison.OrdinalIgnoreCase))
-                fileName += ".txt";
-
-            Console.WriteLine("Text kiriting (tugatish uchun bo'sh qator bosing):");
-
-            var lines = new List<string>();
-            while (true)
-            {
-                string line = Console.ReadLine();
-                if (string.IsNullOrEmpty(line)) break;
-                lines.Add(line);
-            }
-
-            string text = string.Join(Environment.NewLine, lines);
-
-            bool saved = await service.WriteFileAsync(fileName, text);
-
-            if (!saved)
-            {
-
-                Console.WriteLine("❗ Bunday fayl allaqachon bor. Boshqa nom kiriting.");
-            }
-            else
-            {
-                Console.WriteLine($" Saqlandi: {fileName}");
-            }
-
-            Console.WriteLine("Davom etish uchun birorta tugma bosing...");
-            Console.ReadKey();
-        }
-
-        private static async Task ShowFilesAndRead(IFileService service)
-        {
-            Console.Clear();
-
             var files = await service.GetAllFileNamesAsync();
 
             if (files.Count == 0)
             {
-                Console.WriteLine("Hozircha .txt file yo'q.");
-                Console.WriteLine("Davom etish uchun birorta tugma bosing...");
+                Console.WriteLine("Hozircha fayl yo‘q.");
+            }
+            else
+            {
+                for (int i = 0; i < files.Count; i++)
+                    Console.WriteLine($"{i + 1}) {files[i]}");
+            }
+
+            Console.WriteLine("\nMenyuga qaytish uchun tugma bosing...");
+            Console.ReadKey();
+        }
+
+        private static async Task ReadSelectedFile(IFileService service)
+        {
+            Console.Clear();
+            var files = await service.GetAllFileNamesAsync();
+
+            if (files.Count == 0)
+            {
+                Console.WriteLine("Hozircha fayl yo‘q.");
+                Console.WriteLine("Tugma bosing...");
                 Console.ReadKey();
                 return;
             }
 
-            Console.WriteLine("--- Filelar ---");
             for (int i = 0; i < files.Count; i++)
-            {
-
                 Console.WriteLine($"{i + 1}) {files[i]}");
-            }
 
-            Console.Write("Qaysi file ni o'qiymiz? (raqam kiriting): ");
-            string input = Console.ReadLine();
-
-            if (!int.TryParse(input, out int index) || index < 1 || index > files.Count)
+            Console.Write("\nQaysi fayl? (raqam): ");
+            if (!int.TryParse(Console.ReadLine(), out int idx) || idx < 1 || idx > files.Count)
             {
-                Console.WriteLine("Noto'g'ri raqam!");
-                Console.WriteLine("Davom etish uchun tugma bosing...");
+                Console.WriteLine("Noto‘g‘ri raqam!");
                 Console.ReadKey();
                 return;
             }
 
+            string selectedDisplay = files[idx - 1];     // "M: 2026-01-23.txt"
+            string fileName = selectedDisplay.Replace("M:", "").Trim();
 
-            string selectedDisplay = files[index - 1];
-            string selectedFileName = selectedDisplay.Replace("M: ", "").Trim();
-
-            string content = await service.ReadFileAsync(selectedFileName);
-
-            if (content == null)
-            {
-
-                Console.WriteLine("❗ File topilmadi (mavjud emas).");
-                Console.WriteLine("Davom etish uchun entrni bosing...");
-                Console.ReadKey();
-                return;
-            }
+            var content = await service.ReadFileAsync(fileName);
 
             Console.Clear();
+            Console.WriteLine($"=== {fileName} ===");
+            if (content == null) Console.WriteLine("File topilmadi.");
+            else Console.WriteLine(content);
 
-            Console.WriteLine($"=== {selectedFileName} ichidagi text ===");
-            Console.WriteLine(content);
-
-
-            Console.WriteLine("\nMenyuga qaytish uchun birorta tugma bosing...");
+            Console.WriteLine("\nMenyuga qaytish uchun tugma bosing...");
             Console.ReadKey();
-
-
         }
     }
 }
