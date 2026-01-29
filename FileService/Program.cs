@@ -31,7 +31,7 @@ namespace FileService
 
                 if (choice == "0")
                 {
-                    cts.Cancel(); // heartbeat to‘xtaydi
+                    cts.Cancel();
                     break;
                 }
 
@@ -97,7 +97,7 @@ namespace FileService
                 return;
             }
 
-            string selectedDisplay = files[idx - 1];     // "M: 2026-01-23.txt"
+            string selectedDisplay = files[idx - 1];
             string fileName = selectedDisplay.Replace("M:", "").Trim();
 
             var content = await service.ReadFileAsync(fileName);
