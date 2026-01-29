@@ -41,3 +41,10 @@ You can change the save directory in code (search for the folder path constant/v
 ### Option 2 — .NET CLI
 ```bash
 dotnet run --project FileService
+Tech
+
+C#
+.NET (Console App)
+
+Author
+Ro‘ziyev Eldor
