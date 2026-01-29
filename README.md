@@ -1,31 +1,43 @@
-# FileService (Console App)
+# FileService — C# Console App (File I/O)
 
-Oddiy C# console dastur. Dastur `.txt` fayllar bilan ishlaydi:
-- yangi fayl yaratib matn yozadi
-- mavjud fayllar ro‘yxatini ko‘rsatadi
-- tanlangan fayl ichidagi matnni o‘qib beradi
-  ![Demo](demo8.gif)
+A simple C# console application that creates and reads `.txt` files.
+Built to practice **File I/O**, **menus**, and **clean console UX**.
 
-## Funksiyalar
-- **1-menyu:** Fayl nomini so‘raydi va matn yozib saqlaydi  
-  - agar fayl allaqachon mavjud bo‘lsa: xabar beradi
-- **2-menyu:** Papkadagi barcha `.txt` fayllarni ko‘rsatadi (`M: File.txt` formatda)  
-  - tanlangan fayl ichidagi matnni chiqaradi
-- Console har safar menyuda tozalanadi
-- O‘qilganda matn ekranda turadi, tugma bosilgach menyuga qaytadi
+## Features
+- Create a new `.txt` file and save text
+- List existing `.txt` files in a folder
+- Read and display the content of a selected file
+- Clear console between menu screens for a clean experience
 
-## Saqlash joyi
-Fayllar quyidagi papkaga saqlanadi:
-- `D:\C#Work`
+## Demo
+![Demo](demo8.gif)
 
-Agar papka mavjud bo‘lmasa, dastur avtomatik yaratadi.
+## How it works (Menu)
+1) **Create file**
+   - Asks for a file name
+   - Saves text into a new file
+   - If the file already exists, shows a warning
 
-## Ishga tushirish
-1. Visual Studio orqali projectni oching
-2. `Program.cs` ni ishga tushiring (Start)
+2) **List & read files**
+   - Shows all `.txt` files in the target folder
+   - Lets you pick a file and prints its content
 
-## Talablar
-- .NET (Visual Studio bilan)
+## Storage path
+By default, files are saved to:
 
-## Muallif
-Ro'ziyev Eldor
+`D:\C#Work`
+
+> Note: If the folder doesn’t exist, the app creates it automatically.
+
+### Change the folder
+You can change the save directory in code (search for the folder path constant/variable) and set it to your preferred location.
+
+## Run the project
+
+### Option 1 — Visual Studio
+1. Open `FileService.sln`
+2. Click **Start**
+
+### Option 2 — .NET CLI
+```bash
+dotnet run --project FileService
